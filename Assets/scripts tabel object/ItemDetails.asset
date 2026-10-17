@@ -15,5 +15,5 @@ MonoBehaviour:
   itemName: sampah
   quantity: 1
   maxStack: 64
-  itemIcon: {fileID: 0}
+  itemIcon: {fileID: 532282208441007744, guid: 4e355f6bf21c5df4abb3851affd674c1, type: 3}
   itemDescription: wertghj

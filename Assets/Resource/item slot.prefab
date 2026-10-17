@@ -93,10 +93,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   itemName: 
   itemQuantity: 0
-  itemIcon: {fileID: 0}
+  itemIcon: {fileID: 532282208441007744, guid: 4e355f6bf21c5df4abb3851affd674c1, type: 3}
   isFull: 0
+  maxStackSize: 99
   quantityText: {fileID: 8501113647810354658}
-  itemImage: {fileID: 0}
+  itemImage: {fileID: 7373506459625894123}
+  selectedPanel: {fileID: 5101450191017811872}
+  isItemSelected: 0
 --- !u!1 &4147067537019776226
 GameObject:
   m_ObjectHideFlags: 0
@@ -325,7 +328,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &6323378975488105096
 RectTransform:
   m_ObjectHideFlags: 0

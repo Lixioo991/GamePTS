@@ -1,52 +1,27 @@
 using UnityEngine;
-using UnityEngine.UI;
 using UnityEngine.InputSystem;
+using UnityEngine.UI;
 
 public class InventoryManager : MonoBehaviour, GrabableItem
 {
-    public ItemSlot[] itemSlot;
     InputAction inventoryAction;
     [SerializeField] private GameObject InventoryCanvas;
     [SerializeField] private int slotCount = 16;
     private bool InventoryActive;
+    public ItemSlot[] itemSlot;
+    [SerializeField] private ItemSlot slotPrefab;
 
+    // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        CreateSlots();
         InventoryCanvas.SetActive(false);
         inventoryAction = InputSystem.actions.FindAction("Inventory");
         InventoryActive = false;
 
-        CreateSlots();
     }
 
-    private void CreateSlots()
-    {
-        ItemSlot slotPrefab = Resources.Load<ItemSlot>("ItemSlot");
-
-        if (slotPrefab == null)
-        {
-            Debug.LogError("ItemSlot prefab was not found in a Resources folder.", this);
-            itemSlot = new ItemSlot[0];
-            return;
-        }
-
-        Transform parent = InventoryCanvas.transform;
-
-        GridLayoutGroup grid = InventoryCanvas.GetComponentInChildren<GridLayoutGroup>(true);
-
-        if (grid != null)
-        {
-            parent = grid.transform;
-        }
-
-        itemSlot = new ItemSlot[slotCount];
-
-        for (int i = 0; i < itemSlot.Length; i++)
-        {
-            itemSlot[i] = Instantiate(slotPrefab, parent);
-        }
-    }
-
+    // Update is called once per frame
     void Update()
     {
         if (inventoryAction.triggered && InventoryCanvas != null && InventoryActive == false)
@@ -55,8 +30,7 @@ public class InventoryManager : MonoBehaviour, GrabableItem
             Time.timeScale = 0f;
             Debug.Log("Inventory is active");
             InventoryCanvas.SetActive(true);
-        }
-        else if (inventoryAction.triggered && InventoryCanvas != null && InventoryActive == true)
+        } else if (inventoryAction.triggered && InventoryCanvas != null && InventoryActive == true)
         {
             InventoryActive = false;
             Time.timeScale = 1f;
@@ -65,10 +39,60 @@ public class InventoryManager : MonoBehaviour, GrabableItem
         }
     }
 
+    // Build the slot objects at runtime so no manual wiring is needed in the scene
+    private void CreateSlots()
+{
+    if (slotPrefab == null)
+    {
+        Debug.LogError("Slot Prefab belum dimasukkan ke Inspector!", this);
+        itemSlot = new ItemSlot[0];
+        return;
+    }
+
+    Transform parent = InventoryCanvas.transform;
+    GridLayoutGroup grid = InventoryCanvas.GetComponentInChildren<GridLayoutGroup>(true);
+    if (grid != null)
+    {
+        parent = grid.transform;
+    }
+
+    itemSlot = new ItemSlot[slotCount];
+    for (int i = 0; i < itemSlot.Length; i++)
+    {
+        itemSlot[i] = Instantiate(slotPrefab, parent);
+    }
+}
+public void DeselectAllSlots()
+    {
+        foreach (ItemSlot slot in itemSlot)
+        {
+            slot.isItemSelected = false;
+            slot.isItemSelected = false;
+        }
+        
+    }
+
     public void AddItem(ItemDetails item)
     {
         Debug.Log("Item added to inventory: " + item.ItemName + " Quantity: " + item.Quantity);
 
+        if (itemSlot == null || itemSlot.Length == 0)
+        {
+            Debug.LogWarning("Inventory has no slots, '" + item.ItemName + "' was lost.");
+            return;
+        }
+
+        // First, try to stack the item onto a slot that already holds the same item
+        for (int i = 0; i < itemSlot.Length; i++)
+        {
+            if (itemSlot[i].CanStackWith(item.ItemName))
+            {
+                itemSlot[i].AddQuantity(item.Quantity);
+                return;
+            }
+        }
+
+        // Otherwise, put the item into the first empty slot
         for (int i = 0; i < itemSlot.Length; i++)
         {
             if (!itemSlot[i].isFull)
@@ -78,6 +102,8 @@ public class InventoryManager : MonoBehaviour, GrabableItem
             }
         }
 
-        Debug.Log("Inventory is full!");
+        Debug.LogWarning("Inventory is full, '" + item.ItemName + "' was lost.");
+        
     }
+    
 }
